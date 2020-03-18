@@ -1,8 +1,7 @@
-/*
-joblog - A tool to keep track of your worked hours
-
-No licence for now.
-Copyright 2020 Nicolas Essing.
+/* joblog - A tool to keep track of your worked hours
+ *
+ * No licence for now.
+ * Copyright 2020 Nicolas Essing.
 */
 
 

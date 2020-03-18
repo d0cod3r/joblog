@@ -1,15 +1,17 @@
-/*
-Core methods.
-*/
+/* Core methods
+ */
 
+/* Create a LogEntry for a recent event. */
 LogEntry::LogEntry() {
     this->time = dt::now();
 }
 
+/* Create a LogEntry for a specified time. */
 LogEntry::LogEntry(const dt::time_point& time) {
     this->time = time;
 }
 
+/* Create a string representation to be saved in a file. */
 string LogEntry::toString() {
     return dt::toString(this->time) + " ";
 }
@@ -32,8 +34,9 @@ string LogEntryLog::getNote() {
     return this->note;
 }
 
+/* Parse one line of a file and recreate the LogEntry. */
 LogEntry * LogEntry::parse(const string& str) {
-    // 'dd.mm.YYYY hh:mm:ss <command> <args...>'
+    // The format is 'dd.mm.YYYY hh:mm:ss <command> <args...>'
     dt::time_point time;
     try {
         time = dt::parseDateStr(str.substr(0, dt::DATESIZE));
@@ -76,6 +79,7 @@ string LogEntryLog::toString() {
 }
 
 
+/* Parse the log file. */
 LogList::LogList(std::fstream *filestream) {
     dbglg("LogList constructor");
     this->needsToBeWritten = 0;
@@ -95,6 +99,7 @@ LogList::LogList(std::fstream *filestream) {
     }
 }
 
+/* Perform checks on the logfile. */
 void LogList::check() {
     dbglg("checking loglist");
     bool active = false;
@@ -118,6 +123,8 @@ void LogList::check() {
     //TODO other checks...
 }
 
+/* If an entry is added, it can be appended to the file. If the file has to be
+ * rewritten, keep it that way. */
 void LogList::updateFileState() {
     if (this->needsToBeWritten != -1)
         this->needsToBeWritten += 1;
@@ -180,6 +187,7 @@ void LogList::end(bool again) {
     }
 }
 
+/* Pick out the entries between the given dates. */
 vector<LogEntry *> LogList::list(dt::time_point& from, dt::time_point& to,
                                       bool& includeLogs) {
     vector<LogEntry *> res;
@@ -216,6 +224,7 @@ LogEntryStart * LogList::getLastStart() {
     throw SituationalMistake("No start found");
 }
 
+/* Write this object to the file it was created from. */
 void LogList::save() {
     dbglg("saving LogList");
     if (this->needsToBeWritten == -1) {
@@ -250,6 +259,7 @@ LogList::~LogList() {
     this->entries.clear();
 }
 
+/* Read in the job properties. */
 JobProperties::JobProperties(std::fstream *filestream) {
     this->file = filestream;
     
@@ -276,6 +286,7 @@ void JobProperties::save() {
     //TODO
 }
 
+/* Search the path and read in the list of logs. */
 void Joblog::loadLoglist() {
     if (this->loglist) {
         // If the Loglist was already loaded, return
@@ -328,6 +339,7 @@ void Joblog::setPath(string path) {
     this->path = path;
 }
 
+/* Create a new directory and the necessary files in it. */
 int Joblog::init() {
     dbglg("builder init method called");
     if (this->path.empty()) {
@@ -345,10 +357,13 @@ int Joblog::init() {
     return 0;
 }
 
+/* Enforce checking all files that will be used. */
 void Joblog::doChecks() {
     this->check = true;
 }
 
+
+/* Save all used objects. */
 void Joblog::save() {
     if (this->loglist) {
         this->loglist->save();

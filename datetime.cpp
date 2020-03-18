@@ -1,31 +1,30 @@
-/*
-A small library for date and time support, giving some basic methods from
-std::chrono and some additional tools.
-
-Defines:
-  clock
-  time_point
-  duration
-  seconds
-  minutes
-  hours
-  days
-  weeks
-  months
-  years
-  now
-  parseDateStr
-  parseDurationStr
-  to_time_t
-  to_tm
-  toString
-  toDateString
-  toClockTimeStr
-  getBeginOfDay
-  getLastMonday
-  getLastFirstOfMonth
-  getLastFirstOfYear
-*/
+/* A small library for date and time support, giving some basic methods from
+ * std::chrono and some additional tools.
+ *
+ * Defines the namespace DateTime containing:
+ *  clock
+ *  time_point
+ *  duration
+ *  seconds
+ *  minutes
+ *  hours
+ *  days
+ *  weeks
+ *  months
+ *  years
+ *  now
+ *  parseDateStr
+ *  parseDurationStr
+ *  to_time_t
+ *  to_tm
+ *  toString
+ *  toDateString
+ *  toClockTimeStr
+ *  getBeginOfDay
+ *  getLastMonday
+ *  getLastFirstOfMonth
+ *  getLastFirstOfYear
+ */
 
 #include <chrono>     // c++ time and date
 #include <ctype.h>      // c single character operations
@@ -47,10 +46,7 @@ namespace DateTime {
     using clock = chrono::system_clock;
     using time_point = chrono::time_point<clock>;
     using duration = clock::duration;
-    
-//     typedef chrono::duration<int, std::ratio<1,   1>> seconds;
-//     typedef chrono::duration<int, std::ratio<1,  60>> minutes;
-//     typedef chrono::duration<int, std::ratio<1,3600>> hours;
+
     using seconds = chrono::seconds;
     using minutes = chrono::minutes;
     using hours = chrono::hours;
@@ -66,15 +62,16 @@ namespace DateTime {
     const char* DATEFORMAT = (char*) "%d.%m.%Y %H:%M:%S";
     const int DATESIZE = 19;
 
-    // This exception is thrown by parseDateStr() if the given string does not
-    // match the specified format.
+    /* This exception is thrown by parseDateStr() if the given string does not
+     * match the specified format. */
     class DateFormatException : public std::exception {};
 
-
+    /* The current time. */
     time_point now() {
         return clock::now();
     }
 
+    /* Get a time point from a string. */
     time_point parseDateStr(const std::string& s) {
         std::tm tm;
         std::stringstream stream(s);
@@ -85,7 +82,8 @@ namespace DateTime {
         std::time_t time_t = std::mktime(&tm);
         return chrono::system_clock::from_time_t(time_t);
     }
-    
+
+    /* Get a duration from a string. */
     duration parseDurationStr(const std::string& str) {
         try {
             std::string::size_type number_length;
@@ -104,16 +102,19 @@ namespace DateTime {
             throw DateFormatException();
         }
     }
-    
+
+    /* Tranlate to a time_t object. */
     std::time_t to_time_t(const time_point& time) {
         return chrono::system_clock::to_time_t(time);
     }
 
+    /* Tranlate to a tm object. */
     std::tm *to_tm(const time_point& time) {
         std::time_t time_t = to_time_t(time);
         return localtime(&time_t);
     }
 
+    /* Convert a date to a string. */
     std::string toString(const time_point& time) {
         // one byte more for null termination
         char buff[DATESIZE + 1];
@@ -121,23 +122,26 @@ namespace DateTime {
         std::strftime(buff, DATESIZE + 1, DATEFORMAT, tm);
         return std::string(buff);
     }
-    
+
+    /* Convert a date to a string skipping the clock time. */
     std::string toDateString(const time_point& time) {
-        // Mon 01.01.1970
+        // e.g. 'Mon 01.01.1970'
         char buff[16];
         std::tm *tm = to_tm(time);
         std::strftime(buff, 16, "%a %d.%m.%Y", tm);
         return std::string(buff);
     }
-    
+
+    /* Convert a date to a string using only the clock time. */
     std::string toClockTimeStr(const time_point& time) {
-        // 17:21:02
+        // e.g. '17:21:02'
         char buff[9];
         std::tm *tm = to_tm(time);
         std::strftime(buff, 9, "%H:%M:%S", tm);
         return std::string(buff);
     }
-    
+
+    /* Convert a duration to a string. */
     std::string toString(duration time) {
         int h = chrono::duration_cast<hours>(time).count();
         time %= hours(1);
@@ -155,7 +159,8 @@ namespace DateTime {
         }
         return ss.str();
     }
-    
+
+    /* Get the time 0:00 of the given day. */
     time_point getBeginOfDay(const time_point& time) {
         std::tm *tm = to_tm(time);
         time_point res = time;
@@ -164,21 +169,24 @@ namespace DateTime {
         res -= seconds( tm->tm_sec );
         return res;
     }
-    
+
+    /* Get the first day of the week of the given day. */
     time_point getLastMonday(const time_point& time) {
         std::tm *tm = to_tm(time);
         time_point res = time;
         res -= days( (tm->tm_wday - 1) % 7 );
         return res;
     }
-    
+
+    /* Get the first day of the month of the given day. */
     time_point getLastFirstOfMonth(const time_point& time) {
         std::tm *tm = to_tm(time);
         time_point res = time;
         res -= days( tm->tm_mday - 1 );
         return res;
     }
-    
+
+    /* Get the first day of the year of the given day. */
     time_point getLastFirstOfYear(const time_point& time) {
         std::tm *tm = to_tm(time);
         time_point res = time;

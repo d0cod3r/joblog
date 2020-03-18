@@ -1,6 +1,5 @@
-/*
-User interaction methods.
-*/
+/* User interaction methods.
+ */
 
 const string VERSION("joblog version 0.0.1");
 
@@ -68,6 +67,7 @@ const string HELPMSG_ARGS(
     " -c             Check the integrity of the file."
 );
 
+/* Try to get the LogList. If an error occours, handle it. */
 bool getLoglist(Joblog *joblog, LogList **out) {
     try {
         *out = joblog->getLogList();
@@ -80,6 +80,7 @@ bool getLoglist(Joblog *joblog, LogList **out) {
     return true;
 }
 
+/* Print information. */
 int list(LogList *loglist, vector<string> args) {
     // default settings
     bool listLogs=true;
@@ -174,6 +175,7 @@ int list(LogList *loglist, vector<string> args) {
     return 0;
 }
 
+/* Parse a single command. */
 int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
     if (args[0].compare("help") == 0) {
         if (args.size() < 2) {
@@ -308,6 +310,7 @@ int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
     return 2;
 }
 
+/* Continue to read and parse commands until 'exit' is given. */
 int interactiveMode(Joblog* joblog) {
     dbglg("started interactive mode");
     //TODO
@@ -317,6 +320,7 @@ int interactiveMode(Joblog* joblog) {
     return 0;
 }
 
+/* The main UI function. */
 int commandLineInterface(vector<string> args) {
     // Test for help or version arguments
     if (args.size()>0 && args[0].compare("--help") == 0) {

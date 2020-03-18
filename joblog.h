@@ -1,5 +1,4 @@
-/*
- * Class definitions for joblog.cpp
+/* Class definitions for joblog.cpp
  */
 
 // -----------------------------------------------------------------------------
@@ -18,17 +17,22 @@ public:
     }
 };
 
+/* This exception is thrown when there is something wrong in the saved files
+ * or when files are missing. */
 class CorruptedFileException : public CustomException {
 public:
     CorruptedFileException(const string& msg) :
         CustomException(msg) {};
 };
 
+/* This exception is thrown when a given command is not expected due to the
+ * status obtained from the file. */
 class SituationalMistake : public CustomException {
 public:
     SituationalMistake(const string& msg) :
         CustomException(msg) {};
 };
+
 
 // -----------------------------------------------------------------------------
 //  LogEntry and subclasses
@@ -38,6 +42,7 @@ enum class LogEntryType {
     start, end, log
 };
 
+/* This is the superclass to all entries stored in the logfile. */
 class LogEntry {
 private:
     dt::time_point time;
@@ -79,6 +84,7 @@ public:
     virtual string toString();
 };
 
+
 // -----------------------------------------------------------------------------
 //  Main Content Objects
 // -----------------------------------------------------------------------------
@@ -107,6 +113,8 @@ public:
     vector<LogEntry *> list(dt::time_point&, dt::time_point&, bool&);
 };
 
+/* This class stores information about the job, e.g. how many hours should be
+ * worked in a week. */
 class JobProperties {
 private:
     std::fstream *file;
