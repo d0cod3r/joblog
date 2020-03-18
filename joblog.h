@@ -113,17 +113,6 @@ public:
     vector<LogEntry *> list(dt::time_point&, dt::time_point&, bool&);
 };
 
-/* This class stores information about the job, e.g. how many hours should be
- * worked in a week. */
-class JobProperties {
-private:
-    std::fstream *file;
-    float weeklyhours;
-public:
-    JobProperties(std::fstream *);
-    void save();
-};
-
 /* This is the main class of this program. It stores pointers to the content
  * classes. */
 class Joblog {
@@ -131,10 +120,8 @@ private:
     string path;
     bool check;
     LogList *loglist;
-    JobProperties *jobproperties;
 protected:
     void loadLoglist();
-    void loadProperties();
 public:
     Joblog();
     ~Joblog();

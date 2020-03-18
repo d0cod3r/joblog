@@ -22,17 +22,10 @@ namespace dt = DateTime;
 #include "joblog.h"
 
 
-const string SAVEPATH = "dat"; //TODO change back to ".joblog";
+const string SAVEPATH = ".joblog";
 const int SEARCHDEPTH = 10;
 
 const std::ios_base::openmode FILEMODE = std::fstream::in | std::fstream::out;
-
-
-// for debugging
-void dbglg(string str) {
-    std::cout << "> " << str << std::endl;
-}
-
 
 #include "coremethods.cpp"
 

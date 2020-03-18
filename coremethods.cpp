@@ -81,7 +81,6 @@ string LogEntryLog::toString() {
 
 /* Parse the log file. */
 LogList::LogList(std::fstream *filestream) {
-    dbglg("LogList constructor");
     this->needsToBeWritten = 0;
     this->active = false;
     this->file = filestream;
@@ -101,7 +100,6 @@ LogList::LogList(std::fstream *filestream) {
 
 /* Perform checks on the logfile. */
 void LogList::check() {
-    dbglg("checking loglist");
     bool active = false;
     for (LogEntry *entry : this->entries) {
         if (entry->type() == LogEntryType::start) {
@@ -120,7 +118,6 @@ void LogList::check() {
             throw CorruptedFileException("Entries not sorted");
         }
     }
-    //TODO other checks...
 }
 
 /* If an entry is added, it can be appended to the file. If the file has to be
@@ -173,11 +170,6 @@ void LogList::end(bool again) {
     else if (!again) {
         throw SituationalMistake("Not started");
     }
-    else if (this->getLastEntry()->type() != LogEntryType::end) {
-        dbglg("Weird case, coming...");
-        //TODO If the last entry is not end, then active should be true. (For
-        // now, if I include breaks the story is more complex...)
-    }
     else {
         LogEntry *oldend = this->entries.back();
         this->entries.pop_back();
@@ -191,11 +183,6 @@ void LogList::end(bool again) {
 vector<LogEntry *> LogList::list(dt::time_point& from, dt::time_point& to,
                                       bool& includeLogs) {
     vector<LogEntry *> res;
-    //TODO do I do this? If I assume the list is sorted, then I can do it like
-    // this, which is probably better...
-//     vector<LogEntry *>::iterator it = this->entries.begin();
-//     for (; (it != this->entries.end()) && (*it->getTime() < from); ++it);
-//     for (; (it != this->entries.end()) && (*it->type().compare("start") < from); ++it);
     for (LogEntry *e : this->entries) {
         if ((e->getTime() > from) && (e->getTime() < to)) {
             if (e->type() == LogEntryType::start ||
@@ -226,10 +213,8 @@ LogEntryStart * LogList::getLastStart() {
 
 /* Write this object to the file it was created from. */
 void LogList::save() {
-    dbglg("saving LogList");
     if (this->needsToBeWritten == -1) {
         // rewrite all
-        dbglg("rewriting file");
         this->file->clear();
         this->file->seekp(0);
         for (LogEntry *entry : this->entries) {
@@ -248,7 +233,6 @@ void LogList::save() {
 }
 
 LogList::~LogList() {
-    dbglg("LogList destructor");
     this->file->flush();
     this->file->close();
     delete this->file;
@@ -257,33 +241,6 @@ LogList::~LogList() {
         delete entry;
     }
     this->entries.clear();
-}
-
-/* Read in the job properties. */
-JobProperties::JobProperties(std::fstream *filestream) {
-    this->file = filestream;
-    
-    int delimiter_pos;
-    string line, key, value;
-    while(std::getline(*filestream, line) && !line.empty()) {
-        delimiter_pos = line.find('=');
-        if (delimiter_pos == string::npos) {
-            throw CorruptedFileException("Property without value: '" + line + "'");
-        }
-        key = line.substr(0, delimiter_pos);
-        value = line.substr(delimiter_pos + 1, line.length() - delimiter_pos - 2);
-        if (key.compare("weeklyhours") == 0) {
-            //TODO save weeklyhours
-        }
-        //TODO more properties
-        else {
-            throw CorruptedFileException("Unknown property '" + line + "'");
-        }
-    }
-}
-
-void JobProperties::save() {
-    //TODO
 }
 
 /* Search the path and read in the list of logs. */
@@ -295,7 +252,6 @@ void Joblog::loadLoglist() {
     std::fstream *filestream = new std::fstream();
     // If a path was specified, use that one
     if (! this->path.empty()) {
-        dbglg("using explicit path");
         filestream->open(this->path + "/logs", FILEMODE);
     }
     // Else, search for the default file in parent directories
@@ -305,11 +261,9 @@ void Joblog::loadLoglist() {
         filestream->open(filename);
         for (int i=1; i<SEARCHDEPTH && !(*filestream); i++) {
             currentFolder += "../";
-            dbglg("searching in " + currentFolder);
             filestream->open(currentFolder + filename, FILEMODE);
         }
         this->path = currentFolder;
-        dbglg("using file: " + currentFolder + filename);
     }
     // Test the file
     if (! filestream->good())
@@ -322,17 +276,10 @@ void Joblog::loadLoglist() {
     }
 }
 
-void Joblog::loadProperties() {
-    // To find the path, load the Loglist first
-    this->loadLoglist();
-    //TODO (some of this is already in the backup)
-}
-
 Joblog::Joblog() {
     this->path.clear();
     this->check = false;
     this->loglist = nullptr;
-    this->jobproperties = nullptr;
 }
 
 void Joblog::setPath(string path) {
@@ -341,7 +288,6 @@ void Joblog::setPath(string path) {
 
 /* Create a new directory and the necessary files in it. */
 int Joblog::init() {
-    dbglg("builder init method called");
     if (this->path.empty()) {
         this->path = SAVEPATH;
     }
@@ -362,14 +308,10 @@ void Joblog::doChecks() {
     this->check = true;
 }
 
-
 /* Save all used objects. */
 void Joblog::save() {
     if (this->loglist) {
         this->loglist->save();
-    }
-    if (this->jobproperties) {
-        this->jobproperties->save();
     }
 }
 
@@ -379,11 +321,7 @@ LogList *Joblog::getLogList() {
 }
 
 Joblog::~Joblog() {
-    dbglg("Joblog destructor");
     if (this->loglist) {
         delete this->loglist;
-    }
-    if (this->jobproperties) {
-        delete this->jobproperties;
     }
 }

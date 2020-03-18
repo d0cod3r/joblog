@@ -43,7 +43,6 @@ const string HELPMSG_LIST(
   "List the recent work. The time specifier can be:\n"
   " 1) Empty. Work of this day will be listed.\n"
   " 2) One of the following characters:\n"
-  //TODO "     'a' - this session\n"
   "     'd' - Today\n"
   "     'w' - This week (since Monday morning)\n"
   "     'm' - This month (since the 1st)\n"
@@ -169,7 +168,6 @@ int list(LogList *loglist, vector<string> args) {
             workedtime += thistime;
             notes.clear();
         }
-        else dbglg("wtf"); // should really not happen
     }
     std::cout << "\nOverall: " << dt::toString(workedtime) << std::endl;
     return 0;
@@ -230,7 +228,6 @@ int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
             if (loglist->isActive())
                 std::cout << "Already started.\nIf you want to move the start "
                           << "to now, use 'start -a'." << std::endl;
-                //TODO suggest forgotten end
             else
                 std::cout << "Cannot start again when something "
                           << "happend in between." << std::endl;
@@ -252,11 +249,7 @@ int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
         try {
             loglist->end(again);
         } catch (SituationalMistake& ex) {
-            if (loglist->isActive())
-                dbglg("Weird case, coming later...");
-            else
-                std::cout << "You need to start first." << std::endl;
-                //TODO suggest start previously
+            std::cout << "You need to start first." << std::endl;
             return 2;
         }
         dt::duration worked = loglist->getLastEntry()->getTime() -
@@ -310,17 +303,6 @@ int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
     return 2;
 }
 
-/* Continue to read and parse commands until 'exit' is given. */
-int interactiveMode(Joblog* joblog) {
-    dbglg("started interactive mode");
-    //TODO
-    // for (command << std::cin; command.compare("exit") != 0; ) {
-    //      ...
-    // }
-    return 0;
-}
-
-/* The main UI function. */
 int commandLineInterface(vector<string> args) {
     // Test for help or version arguments
     if (args.size()>0 && args[0].compare("--help") == 0) {
@@ -353,9 +335,9 @@ int commandLineInterface(vector<string> args) {
     
     int res;
     
-    // If there is no command after the arguments, enter interactive mode
+    // If nothing is left to do, end
     if (args.size() == 0) {
-        res = interactiveMode(joblog);
+        return 0;
     }
     // Else, parse the command
     else {
