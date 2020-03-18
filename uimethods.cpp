@@ -5,7 +5,7 @@ User interaction methods.
 const string VERSION("joblog version 0.0.1");
 
 const string HELPMSG(
-  "Useage: joblog [--version] [--help] [-<args>] <command> [<args>]\n"
+  "Useage: joblog [--version] [--help] [-<args>] <command> [<command args>]\n"
   "\n"
   "Commands:\n"
   "  help    Print this help message or further help on a topic.\n"
@@ -47,7 +47,7 @@ const string HELPMSG_LIST(
   //TODO "     'a' - this session\n"
   "     'd' - Today\n"
   "     'w' - This week (since Monday morning)\n"
-  "     'm' - This month\n"
+  "     'm' - This month (since the 1st)\n"
   " 3) <amount><unit> where amount is an integer and unit is\n"
   "     'm' - Minutes \n"
   "     'h' - Hours \n"
@@ -204,7 +204,15 @@ int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
         }
     }
     if (args[0].compare("init") == 0) {
-        return joblog->init();
+        try {
+            return joblog->init();
+        } catch (CorruptedFileException& ex) {
+            std::cout << "Init failed. The exception message is:\n"
+                         "'" << ex.what() << "'\n"
+                         "Note that this could mean this folder is already "
+                         "initialized" << std::endl;
+            return 2;
+        }
     }
     if (args[0].compare("start") == 0) {
         LogList *loglist;
@@ -249,7 +257,8 @@ int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
                 //TODO suggest start previously
             return 2;
         }
-        dt::duration worked = dt::now()-loglist->getLastStart()->getTime();
+        dt::duration worked = loglist->getLastEntry()->getTime() -
+                                  loglist->getLastStart()->getTime();
         std::cout << "End noted. You worked " << dt::toString(worked)
                   << "." << std::endl;
         return 0;

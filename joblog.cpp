@@ -10,6 +10,7 @@ Copyright 2020 Nicolas Essing.
 #include <vector>     // vector
 #include <iostream>   // command line in & out
 #include <fstream>    // file in & out
+#include <sys/stat.h> // mkdir
 #include <exception>  // exceptions
 
 #include "datetime.cpp"

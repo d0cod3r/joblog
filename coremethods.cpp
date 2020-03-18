@@ -297,6 +297,7 @@ void Joblog::loadLoglist() {
             dbglg("searching in " + currentFolder);
             filestream->open(currentFolder + filename, FILEMODE);
         }
+        this->path = currentFolder;
         dbglg("using file: " + currentFolder + filename);
     }
     // Test the file
@@ -328,9 +329,19 @@ void Joblog::setPath(string path) {
 }
 
 int Joblog::init() {
-    //TODO create a new folder here or at this->path, write the basic
-    // files in it
     dbglg("builder init method called");
+    if (this->path.empty()) {
+        this->path = SAVEPATH;
+    }
+    int res = mkdir((this->path).c_str(), 0);
+    if (res != 0) {
+        throw CorruptedFileException("Could not create a directory.");
+    }
+    string logfilename = this->path + "/" + "logs";
+    std::ofstream file(logfilename);
+    if (! file.good()) {
+        throw CorruptedFileException("Could not create a log file.");
+    }
     return 0;
 }
 

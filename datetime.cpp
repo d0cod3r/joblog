@@ -150,7 +150,7 @@ namespace DateTime {
             ss << m << "min";
         }
         // ensure that no empty string is returned
-        if (ss.str().length() == 0) {
+        if (ss.str().empty()) {
             ss << "0";
         }
         return ss.str();
