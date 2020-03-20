@@ -291,7 +291,7 @@ int Joblog::init() {
     if (this->path.empty()) {
         this->path = SAVEPATH;
     }
-    int res = mkdir((this->path).c_str(), 0);
+    int res = mkdir((this->path).c_str(), 0755);
     if (res != 0) {
         throw CorruptedFileException("Could not create a directory.");
     }

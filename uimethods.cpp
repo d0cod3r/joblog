@@ -205,7 +205,9 @@ int parseNormalCommand(Joblog* joblog, std::vector<string> args) {
     }
     if (args[0].compare("init") == 0) {
         try {
-            return joblog->init();
+            int res = joblog->init();
+            std::cout << "Initialized." << std::endl;
+            return res;
         } catch (CorruptedFileException& ex) {
             std::cout << "Init failed. The exception message is:\n"
                          "'" << ex.what() << "'\n"
