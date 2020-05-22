@@ -73,8 +73,11 @@ namespace DateTime {
 
     /* Get a time point from a string. */
     time_point parseDateStr(const std::string& s) {
-        std::tm tm;
-        std::stringstream stream(s);
+        std::tm tm{0};
+        // Ignore daylight saving time. This fixes a but where one hour was
+        // added to some times, but is probably not consistent for all times.
+        tm.tm_isdst = -1;
+        std::istringstream stream(s);
         stream >> std::get_time(&tm, DATEFORMAT);
         if (stream.fail()) {
             throw DateFormatException();
