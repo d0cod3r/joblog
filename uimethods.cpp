@@ -63,7 +63,7 @@ const string HELPMSG_ARGS(
     "Available arguments are:\n"
     " -path=<path>   Specify to use a given path instead of searching for\n"
     "                  default path. Do not end with '/'.\n"
-    " -c             Check the integrity of the file."
+    " -c             Check the integrity of the files used while progressing."
 );
 
 /* Try to get the LogList. If an error occours, handle it. */
